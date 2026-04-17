@@ -1,0 +1,18 @@
+# Dependency directories
+node_modules/
+dist/
+build/
+__pycache__/
+*.pyc
+
+# Environment variables
+.env
+.env.local
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Docker data (if you map volumes locally)
+pg_data/
+redis_data/

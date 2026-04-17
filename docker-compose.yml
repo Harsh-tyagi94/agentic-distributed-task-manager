@@ -1,0 +1,36 @@
+services:
+  # The Message Broker
+  redis:
+    image: redis:7-alpine
+    container_name: task_queue_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  # The Persistent Audit Trail
+  postgres:
+    image: postgres:15-alpine
+    container_name: task_queue_db
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password123
+      POSTGRES_DB: task_audit
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  # Optional: Redis Insight (Visual GUI for your queue)
+  # Access this at http://localhost:8001
+  redis-insight:
+    image: redislabs/redisinsight:latest
+    ports:
+      - "5540:5540"
+    depends_on:
+      - redis
+
+volumes:
+  redis_data:
+  postgres_data:
