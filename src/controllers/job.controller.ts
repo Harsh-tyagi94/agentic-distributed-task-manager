@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from "uuid";
 import { taskQueue } from "../queues/mainQueue.ts";
 import { db } from "../config/db.ts";
 import { asyncHandler } from "../utils/asyncHandler.ts";
+import { jobEnqueuedCounter } from "../server.ts";
 
 const priorityMap: Record<string, number> = {
   high: 1,
@@ -34,6 +35,8 @@ const postedJob = asyncHandler(async (req: Request, res: Response) => {
       priority: selectedPriority,
     },
   );
+
+  jobEnqueuedCounter.inc({ job_type: type, priority: priorityLevel });
 
   // 3. Create Audit Record
   await db.query(

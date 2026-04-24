@@ -2,3 +2,7 @@ bullmq
 python-dotenv
 langchain-google-genai
 langchain-core
+prometheus-client
+langgraph
+langgraph-checkpoint-redis
+redis
