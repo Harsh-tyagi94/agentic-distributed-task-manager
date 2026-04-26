@@ -6,3 +6,8 @@ prometheus-client
 langgraph
 langgraph-checkpoint-redis
 redis
+langchain-community
+langfuse
+langchain
+wikipedia
+langfuse>=3.0.0

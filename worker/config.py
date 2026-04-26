@@ -11,6 +11,10 @@ GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 QUEUE_NAME = os.getenv("QUEUE_NAME", "task-stream")
 METRICS_PORT = int(os.getenv("METRICS_PORT"))
 
+LANGFUSE_PUBLIC_KEY = os.getenv("LANGFUSE_PUBLIC_KEY")
+LANGFUSE_SECRET_KEY = os.getenv("LANGFUSE_SECRET_KEY")
+LANGFUSE_BASE_URL = os.getenv("LANGFUSE_BASE_URL")
+
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",

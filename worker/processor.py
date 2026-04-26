@@ -4,7 +4,7 @@ import traceback
 from langchain_core.messages import HumanMessage
 from langgraph.checkpoint.redis import AsyncRedisSaver
 
-from worker.agent import AgentState, build_graph
+from worker.agent import AgentState, build_graph, get_langfuse_handler, langfuse_client
 from worker.config import get_logger
 from worker.metrics import ACTIVE_TASKS, JOB_DURATION, JOBS_PROCESSED
 
@@ -38,7 +38,10 @@ async def process_agent_task(job, job_token, checkpointer) -> dict:
         "messages": [HumanMessage(content=prompt_text)],
         "job_id": job.id,
     }
-    config = {"configurable": {"thread_id": job.id}}
+    config = {
+        "configurable": {"thread_id": job.id},
+        "callbacks": [get_langfuse_handler(job.id)],
+    }
 
     ACTIVE_TASKS.inc()
     start = time.monotonic()
@@ -47,10 +50,17 @@ async def process_agent_task(job, job_token, checkpointer) -> dict:
         # Reuse the injected checkpointer — no new connection opened here
         app = build_graph().compile(checkpointer=checkpointer)
         final_state = await app.ainvoke(initial_state, config=config)
+        
+        last_msg = final_state["messages"][-1]
 
-        output = final_state["messages"][-1].content
+        output = last_msg.content
+        if isinstance(output, list):
+             output = "".join([c.get("text", "") if isinstance(c, dict) else str(c) for c in output])
+
         logger.info("Job %s completed. Output length: %d chars", job.id, len(output))
         JOBS_PROCESSED.labels(job_type=job_type, status="success").inc()
+        
+        langfuse_client.flush()
 
         return {"status": "completed", "output": output}
 
